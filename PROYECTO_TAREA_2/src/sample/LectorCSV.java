@@ -22,37 +22,58 @@ public class LectorCSV {
 
     private static final ObservableList<Tabla> dataList = FXCollections.observableArrayList();
 
-    public static void ImportarCSV(TableView tableView, String ruta) throws EmptyFileException, SeparatorException{
-
-        String CsvFile = ruta;
-        String FieldDelimiter = ",";
+    private static BufferedReader verificarArchivoVacio(String CsvFile) throws EmptyFileException {
 
         BufferedReader br;
 
         try {
             br = new BufferedReader(new FileReader(CsvFile));
 
-            if(br.readLine() == null){
+            if (br.readLine() == null) {
 
                 throw new EmptyFileException();
 
 
-            }else{
+            } else {
                 br = new BufferedReader(new FileReader(CsvFile));
-            }
 
-            String line;
-            boolean hayComa = false;
+            }
+            return br;
+        } catch (FileNotFoundException ex) {
+            new Alert(Alert.AlertType.ERROR, "El archivo no existe").showAndWait();
+            return null;
+        } catch (IOException ex) {
+            return null;
+        }
+
+
+    }
+
+    private static boolean verificarComas(String line){
+
+        for(int i = 0; i < line.length(); i++){
+            if(line.charAt(i) == ','){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void leerArchivo(BufferedReader br) throws SeparatorException{
+
+        String line;
+        boolean hayComa = false;
+        try{
+
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(FieldDelimiter, -1);
+                String[] fields = line.split(",", -1);
 
                 Tabla record = new Tabla();
 
-                for(int i = 0; i < line.length(); i++){
-                    if(line.charAt(i) == ','){
-                        hayComa = true;
-                    }
+                if(verificarComas(line)){
+                    hayComa = true;
                 }
+
 
                 for(int i = 0; i < fields.length; i++){
                     record.setFNumber(i,fields[i]);
@@ -61,21 +82,25 @@ public class LectorCSV {
                 dataList.add(record);
 
             }
-
-            if(!hayComa){
-
-                throw new SeparatorException();
-
-            }
-
-        } catch (FileNotFoundException ex) {
-
-            new Alert(Alert.AlertType.ERROR, "El archivo no existe").showAndWait();
-
-
-        } catch (IOException ex) {
+        }catch (IOException ex) {
 
         }
+
+
+        if(!hayComa){
+
+            throw new SeparatorException();
+
+        }
+
+    }
+
+
+    public static void ImportarCSV(TableView tableView, String CsvFile) throws EmptyFileException, SeparatorException{
+
+        BufferedReader br = verificarArchivoVacio(CsvFile);
+
+        leerArchivo(br);
 
     }
 

@@ -19,22 +19,59 @@ public class Controller extends AnchorPane {
     private String ruta;
     private boolean iniciarTabla = false;
 
-    public void seleccionarArchivo(MouseEvent event){
+    private void verificarExtension(File a) throws InvalidFileException{
 
+        String extension;
+
+        extension = ""+ a.getAbsolutePath().charAt(a.getAbsolutePath().length()-3);
+        extension += a.getAbsolutePath().charAt(a.getAbsolutePath().length()-2);
+        extension += a.getAbsolutePath().charAt(a.getAbsolutePath().length()-1);
+
+        if (!extension.equals("csv")) {
+
+            throw new InvalidFileException();
+        }
+    }
+
+    private void iniciarTabla(){
         if(!iniciarTabla){
             LectorCSV.iniciarTabla(tableView1);
             iniciarTabla=true;
         }
+    }
+
+    private File iniciarFileChooser(){
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
-        fileChooser.getExtensionFilters().add(extFilter);
+        //FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
+        //fileChooser.getExtensionFilters().add(extFilter);
         File a = fileChooser.showOpenDialog(primaryStage);
-        lbl1.setText(a.getAbsolutePath());
-        ruta = a.getAbsolutePath();
+        return a;
+    }
+
+    private void actualizarLabels(String a){
+
+        lbl1.setText(a);
+        ruta = a;
 
         tableView1.getItems().clear();
+    }
+
+    public void seleccionarArchivo(MouseEvent event){
+
+        iniciarTabla();
+
+        File a = iniciarFileChooser();
+
+        try{
+            verificarExtension(a);
+        }catch (InvalidFileException ex){
+            new Alert(Alert.AlertType.ERROR, "Se ha lanzado la excepcion InvalidFileException debido a que el archivo seleccionado no es de tipo CSV!!").showAndWait();
+        }
+
+        actualizarLabels(a.getAbsolutePath());
+
 
         //Tarea 2
 
@@ -45,6 +82,7 @@ public class Controller extends AnchorPane {
         }catch (EmptyFileException ex){
 
             new Alert(Alert.AlertType.ERROR, "Se ha lanzado la excepcion EmptyFileException debido a que el archivo seleccionado se encuentra vacio!!").showAndWait();
+
         }catch(SeparatorException ex){
             new Alert(Alert.AlertType.ERROR, "Se ha lanzado la excepcion SeparatorException debido a que el formato esta mal, debe separase con comas (,) !!").showAndWait();
         }
