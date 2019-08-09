@@ -44,7 +44,9 @@ public class Controller extends AnchorPane {
 
         }catch (EmptyFileException ex){
 
-            new Alert(Alert.AlertType.ERROR, "El archivo seleccionado se encuentra vacio!!").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Se ha lanzado la excepcion EmptyFileException debido a que el archivo seleccionado se encuentra vacio!!").showAndWait();
+        }catch(SeparatorException ex){
+            new Alert(Alert.AlertType.ERROR, "Se ha lanzado la excepcion SeparatorException debido a que el formato esta mal, debe separase con comas (,) !!").showAndWait();
         }
 
         //Tarea 2

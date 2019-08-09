@@ -22,7 +22,7 @@ public class LectorCSV {
 
     private static final ObservableList<Tabla> dataList = FXCollections.observableArrayList();
 
-    public static void ImportarCSV(TableView tableView, String ruta) throws EmptyFileException{
+    public static void ImportarCSV(TableView tableView, String ruta) throws EmptyFileException, SeparatorException{
 
         String CsvFile = ruta;
         String FieldDelimiter = ",";
@@ -42,16 +42,29 @@ public class LectorCSV {
             }
 
             String line;
+            boolean hayComa = false;
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(FieldDelimiter, -1);
 
                 Tabla record = new Tabla();
+
+                for(int i = 0; i < line.length(); i++){
+                    if(line.charAt(i) == ','){
+                        hayComa = true;
+                    }
+                }
 
                 for(int i = 0; i < fields.length; i++){
                     record.setFNumber(i,fields[i]);
                 }
 
                 dataList.add(record);
+
+            }
+
+            if(!hayComa){
+
+                throw new SeparatorException();
 
             }
 
